@@ -2,7 +2,9 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![Status](https://img.shields.io/badge/status-in%20development-orange.svg)
-
+<p align="center">
+  <img src="logo.png" alt="DOCTORY AI Logo" width="600" height="1000">
+</p>
 DOCTORY AI is an intelligent, integrated platform designed for preliminary medical diagnosis. It combines the analytical power of multiple specialized AI models with the communicative prowess of a Large Language Model (LLM) to create a seamless, user-friendly experience. Users can upload medical images or describe symptoms in a conversational manner and receive clear, empathetic, and actionable health insights.
 
 > [A high-quality banner image or a short GIF demonstrating the final application's workflow will be placed here.]
