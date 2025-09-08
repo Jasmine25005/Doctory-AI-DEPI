@@ -68,7 +68,7 @@ The project utilizes four publicly available datasets from Kaggle to train and e
 - 🩺 **[Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia):** This dataset contains thousands of chest X-ray images, used to train the CNN model for pneumonia detection.
 - 🔬 **[Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria):** A large, balanced dataset of cell images used to train the CNN for identifying parasitized and uninfected cells.
 - 🩸 **[PIMA Indians Diabetes Database](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database):** A standard benchmark dataset with clinical features used for training the diabetes prediction model.
-- ❤️ **[Hypertension Prediction Dataset](https://www.kaggle.com/datasets/miadhul/hypertension-prediction-dataset):** This dataset includes various clinical features for training the hypertension risk classification model.
+- ❤️ **[Hypertension Prediction Dataset](https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset):** This dataset includes various clinical features for training the hypertension risk classification model.
 
 ## 🚀 Getting Started
 
