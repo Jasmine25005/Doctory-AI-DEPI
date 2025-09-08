@@ -19,6 +19,7 @@ This system is an academic proof-of-concept and serves as a preliminary, informa
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
 - [Tech Stack](#-tech-stack)
+- [Datasets](#-datasets)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -60,6 +61,14 @@ The project leverages a modern stack for machine learning and web development:
 -   **Data Manipulation**: Pandas, NumPy
 -   **Frontend**: HTML, CSS, JavaScript
 -   **LLM Integration**: Interfaced via API
+## 💾 Datasets
+
+The project utilizes four publicly available datasets from Kaggle to train and evaluate the models:
+
+- 🩺 **[Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia):** This dataset contains thousands of chest X-ray images, used to train the CNN model for pneumonia detection.
+- 🔬 **[Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria):** A large, balanced dataset of cell images used to train the CNN for identifying parasitized and uninfected cells.
+- 🩸 **[PIMA Indians Diabetes Database](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database):** A standard benchmark dataset with clinical features used for training the diabetes prediction model.
+- ❤️ **[Hypertension Prediction Dataset](https://www.kaggle.com/datasets/miadhul/hypertension-prediction-dataset):** This dataset includes various clinical features for training the hypertension risk classification model.
 
 ## 🚀 Getting Started
 
@@ -128,10 +137,6 @@ Future enhancements planned for DOCTORY AI include:
 -   [ ] **Cloud Deployment**: Deploy the application on a cloud platform (e.g., AWS, Azure) for wider accessibility.
 -   [ ] **Mobile Application**: Develop a native mobile application for an improved user experience.
 -   [ ] **Clinical Validation**: Collaborate with medical professionals to validate the system's performance against real-world diagnoses.
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📧 Contact
 
