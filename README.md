@@ -1,6 +1,5 @@
 # DOCTORY AI: A Multi-Modal AI System for Preliminary Disease Diagnosis
 
-![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![Status](https://img.shields.io/badge/status-in%20development-orange.svg)
 <p align="center">
   <img src="logo.png" alt="DOCTORY AI Logo" width="600" height="800">
