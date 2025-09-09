@@ -25,7 +25,6 @@ This system is an academic proof-of-concept and serves as a preliminary, informa
 - [Usage](#-usage)
 - [Model Performance](#-model-performance)
 - [Roadmap](#-roadmap)
-- [License](#-license)
 - [Contact](#-contact)
 
 ## 📖 About The Project
