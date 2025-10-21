@@ -138,6 +138,4 @@ Future enhancements planned for DOCTORY AI include:
 
 ## 📧 Contact
 
-Jasmine Mohamed Fahmy - jasminemohamed2545@gmail.com
-
 Project Link: https://github.com/Jasmine25005/Doctory-AI-DEPI/
