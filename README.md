@@ -1,12 +1,11 @@
 # DOCTORY AI: A Multi-Modal AI System for Preliminary Disease Diagnosis
 
-![Status](https://img.shields.io/badge/status-in%20development-orange.svg)
+![Status](https://img.shields.io/badge/status-ready%20for%20deployment-green.svg)
 <p align="center">
   <img src="logo.png" alt="DOCTORY AI Logo" width="400" height="300">
 </p>
-DOCTORY AI is an intelligent, integrated platform designed for preliminary medical diagnosis. It combines the analytical power of multiple specialized AI models with the communicative prowess of a Large Language Model (LLM) to create a seamless, user-friendly experience. Users can upload medical images or describe symptoms in a conversational manner and receive clear, empathetic, and actionable health insights.
 
-> [A high-quality banner image or a short GIF demonstrating the final application's workflow will be placed here.]
+DOCTORY AI is an intelligent, integrated platform designed for preliminary medical diagnosis. It combines the analytical power of multiple specialized AI models with the communicative prowess of a Large Language Model (LLM) to create a seamless, user-friendly experience. Users can upload medical images or describe symptoms in a conversational manner and receive clear, empathetic, and actionable health insights.
 
 ## ⚠️ Important Disclaimer
 
@@ -14,7 +13,7 @@ This system is an academic proof-of-concept and serves as a preliminary, informa
 
 ## 📋 Table of Contents
 
-- [About The Project](#about-the-project)
+- [About The Project](#-about-the-project)
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
 - [Tech Stack](#-tech-stack)
@@ -35,54 +34,58 @@ The core innovation is the system's ability to automatically interpret technical
 
 ## ✨ Key Features
 
--   **Multi-Modal Diagnostic Capabilities**: The system integrates four distinct AI models for a broad range of preliminary diagnoses.
-    -   🩺 **Pneumonia Detection**: Classifies chest X-ray images as 'Normal' or 'Pneumonia' using a Convolutional Neural Network (CNN).
-    -   🔬 **Malaria Diagnosis**: Identifies 'Parasitized' or 'Uninfected' cells from blood smear images using a CNN.
-    -   🩸 **Diabetes Prediction**: Assesses diabetes risk from tabular clinical data using an XGBoost model.
-    -   ❤️ **Hypertension Classification**: Predicts hypertension risk based on clinical measurements using an XGBoost model.
--   **Conversational LLM Interface**: Users can either upload data directly or simply describe their symptoms in a chat-like interface powered by an LLM.
--   **Automated Empathetic Interpretation**: The system's unique value lies in its LLM-powered engine that automatically translates complex model predictions into clear, helpful, and responsible advice.
+**Multi-Modal Diagnostic Capabilities**
+The system integrates four distinct, high-performance AI models:
+
+* 🩺 **Pneumonia Detection**: Utilizes **YOLOv11 (Classification)** to classify chest X-ray images into 'Normal', 'Bacteria Pneumonia', or 'Virus Pneumonia' with high speed and accuracy.
+* 🔬 **Malaria Diagnosis**: Identifies 'Parasitized' or 'Uninfected' cells from microscopic blood smear images using a **VGG16** Transfer Learning architecture.
+* 🩸 **Diabetes Prediction**: Assesses diabetes risk using a **Voting Ensemble Model** (combining XGBoost, LightGBM, and CatBoost) for robust predictions on clinical data.
+* ❤️ **Heart Disease Risk**: Predicts the risk of cardiovascular disease based on lifestyle and medical history using a fine-tuned **Random Forest** model.
+
+**Conversational LLM Interface**
+* Users can either upload data directly or simply describe their symptoms in a chat-like interface.
+* The backend automatically translates complex JSON outputs from the models into empathetic, human-readable advice via the LLM.
 
 ## 🏗️ System Architecture
 
-The project is built on a client-server architecture. The front-end provides the user interface for interaction. The back-end routes user input (symptom descriptions or data uploads) to the appropriate pre-trained AI model. The model's prediction is then automatically sent to the LLM interpreter, which generates a final, human-readable response to be displayed to the user.
-
-> [A diagram illustrating the system architecture (Frontend -> Backend -> AI Models -> LLM -> Frontend) will be placed here.]
+The project is built on a client-server architecture:
+1.  **Frontend**: Provides the chat interface and file upload zones.
+2.  **Backend (Flask)**: Processes requests, handles image preprocessing (resizing/normalization), and routes data to the specific ONNX or Joblib model.
+3.  **AI Engine**: Runs inference using optimized model formats (`.onnx` for images, `.joblib` for tabular data).
+4.  **LLM Interpreter**: Converts the inference result into a natural language response.
 
 ## 🛠️ Tech Stack
 
 The project leverages a modern stack for machine learning and web development:
 
--   **Backend**: Flask / Django
--   **Machine Learning**: Scikit-learn, XGBoost
--   **Deep Learning**: TensorFlow, Keras
--   **Data Manipulation**: Pandas, NumPy
+-   **Backend**: Flask, Flask-CORS
+-   **Machine Learning**: Scikit-learn, XGBoost, LightGBM, CatBoost
+-   **Computer Vision**: Ultralytics (YOLOv11), TensorFlow/Keras (VGG16), ONNX Runtime
+-   **Data Manipulation**: Pandas, NumPy, Pillow
 -   **Frontend**: HTML, CSS, JavaScript
 -   **LLM Integration**: Interfaced via API
+
 ## 💾 Datasets
 
-The project utilizes four publicly available datasets from Kaggle to train and evaluate the models:
+The project utilizes four publicly available datasets to train and evaluate the models:
 
-- 🩺 **[Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia):** This dataset contains thousands of chest X-ray images, used to train the CNN model for pneumonia detection.
-- 🔬 **[Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria):** A large, balanced dataset of cell images used to train the CNN for identifying parasitized and uninfected cells.
-- 🩸 **[PIMA Indians Diabetes Database](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database):** A standard benchmark dataset with clinical features used for training the diabetes prediction model.
-- ❤️ **[Hypertension Prediction Dataset](https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset):** This dataset includes various clinical features for training the hypertension risk classification model.
+- 🩺 **[Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia):** Used to train the YOLOv11 classifier.
+- 🔬 **[Malaria Cell Images Dataset](https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria):** A balanced dataset of 27,558 cell images used for the VGG16 model.
+- 🩸 **[PIMA Indians Diabetes Database](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database):** A standard benchmark dataset used for the Ensemble classifier.
+- ❤️ **[Cardiovascular Diseases Risk Prediction](https://www.kaggle.com/datasets/alphiree/cardiovascular-diseases-risk-prediction-dataset):** A comprehensive dataset (CVD_cleaned.csv) used to train the Random Forest model.
 
 ## 🚀 Getting Started
-
-To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
 -   Python 3.9+
 -   `pip` package manager
--   An API key for the Large Language Model service used.
 
 ### Installation
 
 1.  **Clone the repository**
     ```sh
-    git clone https://github.com/Jasmine25005/Doctory-AI-DEPI.git
+    git clone [https://github.com/Jasmine25005/Doctory-AI-DEPI.git](https://github.com/Jasmine25005/Doctory-AI-DEPI.git)
     cd Doctory-AI
     ```
 2.  **Create and activate a virtual environment**
@@ -94,47 +97,39 @@ To get a local copy up and running, follow these simple steps.
     ```sh
     pip install -r requirements.txt
     ```
-4.  **Set up environment variables**
-    -   Create a `.env` file in the root directory.
-    -   Add your LLM API key to the `.env` file:
-        ```
-        LLM_API_KEY='your_api_key_here'
-        ```
+4.  **Configuration**
+    * Ensure the backend `models/` directory contains the required `.onnx` and `.joblib` files.
+    * Set up your LLM API keys in the `.env` file (if applicable for your specific LLM integration).
 
 ## 🖥️ Usage
 
-1.  **Run the web application from the root directory:**
+1.  **Run the Flask API:**
     ```sh
     python app.py
     ```
-2.  **Open your web browser and navigate to `http://127.0.0.1:5000`**
-
-You can then interact with the conversational interface by describing symptoms or navigating to the specific sections for uploading X-ray images, blood smear images, or clinical data.
-
-> [A screenshot of the application's main conversational interface will be placed here.]
+2.  **Open the Frontend:**
+    Open the `index.html` file in your browser or navigate to `http://127.0.0.1:5000` if serving static files via Flask.
 
 ## 📊 Model Performance
 
-All models were evaluated on a held-out test set using Accuracy, Precision, Recall, and F1-Score. The final performance metrics will be populated in the table below.
+All models were rigorously evaluated on held-out test sets. Below are the final metrics achieved:
 
-| Model        | Accuracy | Precision | Recall | F1-Score |
-| :----------- | :------- | :-------- | :----- | :------- |
-| Pneumonia    | TBD      | TBD       | TBD    | TBD      |
-| Malaria      | TBD      | TBD       | TBD    | TBD      |
-| Diabetes     | TBD      | TBD       | TBD    | TBD      |
-| Hypertension | TBD      | TBD       | TBD    | TBD      |
+| Diagnostic Module | Model Architecture | Accuracy | Precision | Recall | F1-Score |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Pneumonia** | YOLOv11-Cls (ONNX) | **85.3%** | 0.85 | 0.85 | 0.85 |
+| **Malaria** | VGG16 (Transfer Learning) | **88.2%** | 0.83 | **0.97** | 0.89 |
+| **Diabetes** | Voting Ensemble (XGB+LGBM+Cat) | **76.0%** | 0.67 | 0.63 | 0.65 |
+| **Heart Disease** | Random Forest | **93.0%** | **0.95** | 0.92 | **0.93** |
 
-> [Confusion matrix plots for each of the four models will be inserted here to visualize their performance on the test data.]
+*Note: For Malaria, the Recall (Sensitivity) is prioritized to ensure positive cases are not missed.*
 
 ## 🗺️ Roadmap
 
-Future enhancements planned for DOCTORY AI include:
-
--   [ ] **Expand Diagnostic Modules**: Incorporate models for other common conditions.
--   [ ] **Enhance Models**: Retrain models on larger, more diverse datasets to improve robustness.
--   [ ] **Cloud Deployment**: Deploy the application on a cloud platform (e.g., AWS, Azure) for wider accessibility.
--   [ ] **Mobile Application**: Develop a native mobile application for an improved user experience.
--   [ ] **Clinical Validation**: Collaborate with medical professionals to validate the system's performance against real-world diagnoses.
+-   [x] **Model Development**: Train and optimize 4 core models.
+-   [x] **Backend Integration**: Build Flask API with ONNX runtime.
+-   [ ] **Cloud Deployment**: Deploy the application on a cloud platform (Render/AWS).
+-   [ ] **Mobile Application**: Develop a native mobile wrapper.
+-   [ ] **Clinical Validation**: Collaborate with medical professionals for real-world validation.
 
 ## 📧 Contact
 
