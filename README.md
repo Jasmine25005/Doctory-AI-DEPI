@@ -85,7 +85,7 @@ The project utilizes four publicly available datasets to train and evaluate the 
 
 1.  **Clone the repository**
     ```sh
-    git clone [https://github.com/Jasmine25005/Doctory-AI-DEPI.git](https://github.com/Jasmine25005/Doctory-AI-DEPI.git)
+    git clone https://github.com/Jasmine25005/Doctory-AI-DEPI.git
     cd Doctory-AI
     ```
 2.  **Create and activate a virtual environment**
