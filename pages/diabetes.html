@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Prediction</title>
+    <!-- Bootstrap CSS link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- TensorFlow.js link -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <style>
+        /* نفس الـ CSS من الصفحة الأصلية */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 50%, #64b5f6 100%);
+            color: #0d47a1;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .hero {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: pulse 10s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .hero .container {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1.5s ease-out;
+        }
+        .hero h1 {
+            font-weight: 700;
+            font-size: 4.5rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section {
+            padding: 120px 0;
+            background-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(13, 71, 161, 0.3);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(13, 71, 161, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 50px;
+            position: relative;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(13, 71, 161, 0.1) 0%, transparent 100%);
+            border-radius: 25px;
+            z-index: -1;
+        }
+        .glass-card:hover {
+            transform: translateY(-20px) scale(1.03);
+            box-shadow: 0 35px 70px rgba(13, 71, 161, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+        .btn-modern {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+            border: none;
+            border-radius: 35px;
+            padding: 18px 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: white;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(13, 71, 161, 0.3);
+        }
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+        .btn-modern:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(13, 71, 161, 0.5);
+        }
+        footer {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+            color: white;
+            text-align: center;
+            padding: 50px 0;
+            margin-top: 120px;
+        }
+        #result {
+            font-weight: 600;
+            font-size: 1.4em;
+            margin-top: 40px;
+            padding: 20px 40px;
+            border-radius: 20px;
+            display: inline-block;
+            transition: all 0.4s ease;
+            animation: slideIn 0.6s ease-out;
+            box-shadow: 0 10px 30px rgba(13, 71, 161, 0.2);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .diabetic {
+            color: #d32f2f;
+            background: rgba(211, 47, 47, 0.2);
+            border: 1px solid #d32f2f;
+        }
+        .not-diabetic {
+            color: #388e3c;
+            background: rgba(56, 142, 60, 0.2);
+            border: 1px solid #388e3c;
+        }
+        .form-control {
+            border-radius: 20px;
+            border: 2px solid rgba(13, 71, 161, 0.3);
+            padding: 18px;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            background: rgba(255, 255, 255, 0.8);
+            color: #0d47a1;
+        }
+        .form-control:focus {
+            border-color: #0d47a1;
+            box-shadow: 0 0 0 0.4rem rgba(13, 71, 161, 0.15);
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 1);
+        }
+        .icon {
+            margin-right: 15px;
+            color: #0d47a1;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .spinner {
+            border: 5px solid rgba(13, 71, 161, 0.3);
+            border-top: 5px solid #0d47a1;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1.2s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .optional {
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1><i class="fas fa-heartbeat icon"></i>Diabetes Prediction</h1>
+        </div>
+    </section>
+
+    <!-- Model Section -->
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="glass-card">
+                        <h2 class="text-center mb-5"><i class="fas fa-brain icon"></i>Try the Model</h2>
+                        <p class="text-center mb-5">Enter your medical data (5 required, 3 optional), and the model will predict diabetes risk.</p>
+                        <div class="row">
+                            <!-- Required Fields -->
+                            <div class="col-md-6 mb-3">
+                                <label for="age">Age <span class="text-danger">*</span></label>
+                                <input type="number" id="age" class="form-control" placeholder="e.g., 30" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="weight">Weight (kg) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.1" id="weight" class="form-control" placeholder="e.g., 70" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="height">Height (m) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" id="height" class="form-control" placeholder="e.g., 1.70" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bp">Blood Pressure (BP) <span class="text-danger">*</span></label>
+                                <input type="number" id="bp" class="form-control" placeholder="e.g., 70" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="glucose">Glucose <span class="text-danger">*</span></label>
+                                <input type="number" id="glucose" class="form-control" placeholder="e.g., 120" required>
+                            </div>
+                            <!-- Optional Fields -->
+                            <div class="col-md-6 mb-3">
+                                <label for="pregnancies" class="optional">Pregnancies (Optional)</label>
+                                <input type="number" id="pregnancies" class="form-control" placeholder="e.g., 2">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="skinThickness" class="optional">Skin Thickness (Optional)</label>
+                                <input type="number" id="skinThickness" class="form-control" placeholder="e.g., 20">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="insulin" class="optional">Insulin (Optional)</label>
+                                <input type="number" id="insulin" class="form-control" placeholder="e.g., 80">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button id="predictBtn" class="btn-modern mt-4" disabled><i class="fas fa-search"></i> Predict</button>
+                        </div>
+                        <div id="result" class="text-center mt-4" style="display: none;"></div>
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Analyzing data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Explanation Section -->
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="glass-card">
+                        <h2 class="text-center mb-5"><i class="fas fa-info-circle icon"></i>How Does the Model Work?</h2>
+                        <p>This is a model trained on the Pima Indians Diabetes Dataset from Kaggle. It uses TensorFlow.js to run in the browser and predicts diabetes risk based on medical features. BMI is calculated from Weight and Height. Optional fields use default values if not entered.</p>
+                        <p><strong>Note:</strong> The model is loaded from the Colab-trained version. Ensure the model files (model.json and weights) are hosted publicly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Diabetes Prediction Page. Based on Colab code. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS link -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript for the Model -->
+    <script>
+        let model;
+
+        // Load the model from Colab (replace with your public URL for model.json)
+        async function loadModel() {
+            // Assuming the model is exported from Colab and hosted (e.g., on GitHub or Drive)
+            // Replace 'https://your-public-url/model.json' with the actual URL from Colab export
+            model = await tf.loadLayersModel('https://your-public-url/model.json'); // Update this URL
+            console.log('Model loaded from Colab');
+        }
+
+        // Process inputs and make prediction
+        async function predict() {
+            const age = parseFloat(document.getElementById('age').value) || 0;
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+            const bp = parseFloat(document.getElementById('bp').value) || 0;
+            const glucose = parseFloat(document.getElementById('glucose').value) || 0;
+            const pregnancies = parseFloat(document.getElementById('pregnancies').value) || 1; // Default
+            const skinThickness = parseFloat(document.getElementById('skinThickness').value) || 20; // Default
+            const insulin = parseFloat(document.getElementById('insulin').value) || 80; // Default
+
+            // Calculate BMI from Weight and Height
+            const bmi = height > 0 ? weight / (height * height) : 0;
+            const diabetesPedigree = 0.5; // Default value
+
+            const inputs = [pregnancies, glucose, bp, skinThickness, insulin, bmi, diabetesPedigree, age];
+
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+
+            loading.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            // Convert inputs to tensor (adjust based on Colab model input shape)
+            const tensor = tf.tensor([inputs]);
+            
+            // Prediction (adjust based on Colab: assuming binary classification with sigmoid)
+            const prediction = model.predict(tensor);
+            const result = prediction.dataSync()[0];
+            
+            // Assuming threshold 0.5: 0 = Not Diabetic, 1 = Diabetic
+            const resultText = result > 0.5 ? 'Diabetic' : 'Not Diabetic';
+            const resultClass = resultText.toLowerCase().replace(' ', '-');
+            
+            loading.style.display = 'none';
+            resultDiv.innerHTML = `<span class="${resultClass}">${resultText}</span>`;
+            resultDiv.style.display = 'inline-block';
+        }
+
+        // Load model on page load
+        window.onload = loadModel;
+
+        // Bind button and inputs
+        const requiredInputs = ['age', 'weight', 'height', 'bp', 'glucose'];
+        requiredInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const allFilled = requiredInputs.every(inp => document.getElementById(inp).value.trim() !== '');
+                document.getElementById('predictBtn').disabled = !allFilled;
+            });
+        });
+        document.getElementById('predictBtn').addEventListener('click', predict);
+    </script>
+</body>
+</html>
