@@ -88,7 +88,7 @@ To run the application locally:
 
 1.  **Clone the repository**
     ```sh
-    git clone [https://github.com/Jasmine25005/Doctory-AI-DEPI.git](https://github.com/Jasmine25005/Doctory-AI-DEPI.git)
+    git clone https://github.com/Jasmine25005/Doctory-AI-DEPI.git
     cd Doctory-AI
     ```
 2.  **Create and activate a virtual environment**
