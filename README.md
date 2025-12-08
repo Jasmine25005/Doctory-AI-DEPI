@@ -1,6 +1,8 @@
 # DOCTORY AI: A Multi-Modal AI System for Preliminary Disease Diagnosis
 
-![Status](https://img.shields.io/badge/status-ready%20for%20deployment-green.svg)
+![Status](https://img.shields.io/badge/status-live-success.svg)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](PUT_YOUR_STREAMLIT_LINK_HERE)
+
 <p align="center">
   <img src="logo.png" alt="DOCTORY AI Logo" width="400" height="300">
 </p>
@@ -44,25 +46,24 @@ The system integrates four distinct, high-performance AI models:
 
 **Conversational LLM Interface**
 * Users can either upload data directly or simply describe their symptoms in a chat-like interface.
-* The backend automatically translates complex JSON outputs from the models into empathetic, human-readable advice via the LLM.
+* The application automatically translates complex JSON outputs from the models into empathetic, human-readable advice via the LLM.
 
 ## 🏗️ System Architecture
 
-The project is built on a client-server architecture:
-1.  **Frontend**: Provides the chat interface and file upload zones.
-2.  **Backend (Flask)**: Processes requests, handles image preprocessing (resizing/normalization), and routes data to the specific ONNX or Joblib model.
+The project is built using a streamlined architecture powered by Streamlit:
+1.  **User Interface (Streamlit)**: A unified web interface that handles chat interactions, file uploads, and results visualization.
+2.  **Logic Controller**: Python scripts process user inputs, handle image preprocessing (resizing/normalization), and route data to the specific model.
 3.  **AI Engine**: Runs inference using optimized model formats (`.onnx` for images, `.joblib` for tabular data).
-4.  **LLM Interpreter**: Converts the inference result into a natural language response.
+4.  **LLM Interpreter**: Converts the inference result into a natural language response which is displayed back in the Streamlit chat window.
 
 ## 🛠️ Tech Stack
 
 The project leverages a modern stack for machine learning and web development:
 
--   **Backend**: Flask, Flask-CORS
+-   **Web Framework**: Streamlit & Streamlit Cloud
 -   **Machine Learning**: Scikit-learn, XGBoost, LightGBM, CatBoost
 -   **Computer Vision**: Ultralytics (YOLOv11), TensorFlow/Keras (VGG16), ONNX Runtime
 -   **Data Manipulation**: Pandas, NumPy, Pillow
--   **Frontend**: HTML, CSS, JavaScript
 -   **LLM Integration**: Interfaced via API
 
 ## 💾 Datasets
@@ -76,6 +77,8 @@ The project utilizes four publicly available datasets to train and evaluate the 
 
 ## 🚀 Getting Started
 
+To run the application locally:
+
 ### Prerequisites
 
 -   Python 3.9+
@@ -85,7 +88,7 @@ The project utilizes four publicly available datasets to train and evaluate the 
 
 1.  **Clone the repository**
     ```sh
-    git clone https://github.com/Jasmine25005/Doctory-AI-DEPI.git
+    git clone [https://github.com/Jasmine25005/Doctory-AI-DEPI.git](https://github.com/Jasmine25005/Doctory-AI-DEPI.git)
     cd Doctory-AI
     ```
 2.  **Create and activate a virtual environment**
@@ -98,17 +101,17 @@ The project utilizes four publicly available datasets to train and evaluate the 
     pip install -r requirements.txt
     ```
 4.  **Configuration**
-    * Ensure the backend `models/` directory contains the required `.onnx` and `.joblib` files.
-    * Set up your LLM API keys in the `.env` file (if applicable for your specific LLM integration).
+    * Ensure the `models/` directory contains the required `.onnx` and `.joblib` files.
+    * Set up your LLM API keys in `.streamlit/secrets.toml` (for local run) or via the Streamlit Cloud dashboard (for deployment).
 
 ## 🖥️ Usage
 
-1.  **Run the Flask API:**
+1.  **Run the Streamlit App:**
     ```sh
-    python app.py
+    streamlit run app.py
     ```
-2.  **Open the Frontend:**
-    Open the `index.html` file in your browser or navigate to `http://127.0.0.1:5000` if serving static files via Flask.
+2.  **Access the Application:**
+    The application will automatically open in your default web browser at `http://localhost:8501`.
 
 ## 📊 Model Performance
 
@@ -126,8 +129,9 @@ All models were rigorously evaluated on held-out test sets. Below are the final 
 ## 🗺️ Roadmap
 
 -   [x] **Model Development**: Train and optimize 4 core models.
--   [x] **Backend Integration**: Build Flask API with ONNX runtime.
--   [ ] **Cloud Deployment**: Deploy the application on a cloud platform (Render/AWS).
+-   [x] **Backend Integration**: Develop inference logic with ONNX runtime.
+-   [x] **UI Development**: Create interactive chat interface using Streamlit.
+-   [x] **Cloud Deployment**: Deployed on Streamlit Cloud.
 -   [ ] **Mobile Application**: Develop a native mobile wrapper.
 -   [ ] **Clinical Validation**: Collaborate with medical professionals for real-world validation.
 
