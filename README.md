@@ -1,7 +1,7 @@
 # DOCTORY AI: A Multi-Modal AI System for Preliminary Disease Diagnosis
 
 ![Status](https://img.shields.io/badge/status-live-success.svg)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](PUT_YOUR_STREAMLIT_LINK_HERE)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://doctory-pouhpcj3cmummjd5bis9m6.streamlit.app/)
 
 <p align="center">
   <img src="logo.png" alt="DOCTORY AI Logo" width="400" height="300">
