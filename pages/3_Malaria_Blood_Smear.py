@@ -4,90 +4,81 @@ from PIL import Image
 import io
 from utils import load_css, load_all_models, ask_medbot, MEDICAL_PROMPT, render_sidebar
 
-# --- 1. Page Config ---
+# --- Page Config ---
 st.set_page_config(page_title="Malaria Check", page_icon="🦟", layout="wide")
-load_css() # Loads the Blue/White Theme
+load_css()
 render_sidebar("Malaria")
 
-# --- 3. Load Models ---
 MODELS = load_all_models()
 
-st.title("🦟 Malaria Blood Cell Analysis")
-st.markdown("Upload a microscopic image of a blood cell to detect if it is Parasitized or Uninfected.")
+st.title("🦟 Malaria Cell Analysis")
+st.markdown("### Microscopic Blood Smear Detection")
 
-# --- 4. Helper: Preprocessing for Malaria (Keras-style) ---
+# --- Helper ---
 def process_malaria_image(image_bytes):
-    """
-    Malaria model expects: (1, 224, 224, 3) 
-    No Transpose (HWC format)
-    """
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     img = img.resize((224, 224))
-    img_np = np.array(img).astype(np.float32) / 255.0 # Normalize
-    img_np = np.expand_dims(img_np, axis=0) # Add batch dimension -> (1, 224, 224, 3)
-    return img_np
+    img_np = np.array(img).astype(np.float32) / 255.0
+    return np.expand_dims(img_np, axis=0)
 
-# --- 5. Input Section (Medical Blue Card) ---
-# --- 5. Input Section (Medical Blue Card) ---
-st.markdown('<div class="css-card">', unsafe_allow_html=True)
-col1, col2, col3 = st.columns([1, 2, 1])
+# --- Input ---
+col_up, col_info = st.columns([1, 1])
+with col_up:
+    st.markdown('<div class="css-card">', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("🔬 Upload Cell Image", type=["jpg", "png", "jpeg"])
+    st.markdown('</div>', unsafe_allow_html=True)
+with col_info:
+    st.info("💡 **Tip:** Ensure the image is a clear, single-cell crop from a blood smear slide.")
 
-with col2:  # Centered column
-    uploaded_file = st.file_uploader("Upload Cell Image", type=["jpg", "png", "jpeg"])
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# --- 6. Analysis Logic ---
+# --- Analysis ---
 if uploaded_file:
-    # Center Image
-    col_img1, col_img2, col_img3 = st.columns([1, 1, 1])
-    with col_img2:
-        st.image(uploaded_file, caption="Microscopic View", width=300)
+    col_img, col_res = st.columns([1, 2])
+    
+    with col_img:
+        st.image(uploaded_file, caption="Microscopic View", use_column_width=True)
+        run_btn = st.button("🔬 Analyze Sample", use_container_width=True, type="primary")
 
-    if st.button("Analyze Cell"):
-        if MODELS and MODELS.get('malaria_sess'):
-            try:
-                with st.spinner("Analyzing cellular structure..."):
-                    # 1. Preprocess
-                    image_bytes = uploaded_file.read()
-                    img_input = process_malaria_image(image_bytes)
-                    
-                    # 2. Inference
-                    session = MODELS['malaria_sess']
-                    input_name = MODELS['mal_in']
-                    output_name = MODELS['mal_out']
-                    
-                    # ONNX Run
-                    result = session.run([output_name], {input_name: img_input})
-                    
-                    # 3. Process Result
-                    # Assuming output is a probability [0-1] where <0.5 is Parasitized (check your model training)
-                    # Or output is [Uninfected_Prob, Parasitized_Prob]
-                    # Let's assume standard single neuron output:
-                    prediction = result[0][0][0] 
-                    
-                    # Logic: Usually 0 = Parasitized, 1 = Uninfected OR vice versa. 
-                    # Adjust this threshold logic based on your specific training.
-                    # Commonly: < 0.5 = Parasitized, > 0.5 = Uninfected
-                    if prediction > 0.5:
-                        label = "Uninfected (Healthy)"
-                        color = "#388E3C" # Green
-                        risk = "Low"
-                    else:
-                        label = "Parasitized (Infected)"
-                        color = "#D32F2F" # Red
-                        risk = "High"
+    with col_res:
+        if run_btn:
+            if MODELS and MODELS.get('malaria_sess'):
+                try:
+                    with st.spinner("Analyzing cellular structure..."):
+                        # Inference
+                        img_input = process_malaria_image(uploaded_file.read())
+                        session = MODELS['malaria_sess']
+                        result = session.run([MODELS['mal_out']], {MODELS['mal_in']: img_input})
+                        
+                        prediction = result[0][0][0]
+                        
+                        # Threshold Logic
+                        if prediction > 0.5:
+                            label = "Uninfected"
+                            confidence = prediction
+                            is_healthy = True
+                        else:
+                            label = "Parasitized"
+                            confidence = 1 - prediction
+                            is_healthy = False
 
-                    # 4. Display Result
-                    st.markdown(f"### Result: <span style='color:{color}'>{label}</span>", unsafe_allow_html=True)
-                    
-                    # 5. AI Explanation
-                    ai_prompt = f"Malaria cell analysis result: {label}. Risk Level: {risk}. Explain this result."
-                    explanation = ask_medbot(ai_prompt, MEDICAL_PROMPT)
-                    
-                    st.info(f"👨‍⚕️ **Dr. AI Analysis:**\n\n{explanation}")
+                        # Display Result
+                        st.subheader("Analysis Results")
+                        
+                        if is_healthy:
+                            st.success(f"## ✅ {label}")
+                            st.progress(float(confidence), text=f"Confidence: {confidence:.2%}")
+                        else:
+                            st.error(f"## 🦠 {label}")
+                            st.progress(float(confidence), text=f"Confidence: {confidence:.2%}")
+                            st.warning("⚠️ High Risk: Plasmodium parasite detected.")
 
-            except Exception as e:
-                st.error(f"Analysis Error: {e}")
-        else:
-            st.warning("⚠️ Malaria model not loaded. Check 'models/malaria_model.onnx'.")
+                        # AI Explanation
+                        st.divider()
+                        ai_prompt = f"Malaria cell analysis result: {label}. Explain this result."
+                        explanation = ask_medbot(ai_prompt, MEDICAL_PROMPT)
+                        st.caption("Dr. AI Analysis:")
+                        st.write(explanation)
+
+                except Exception as e:
+                    st.error(f"Error: {e}")
+            else:
+                st.error("Model not loaded.")
