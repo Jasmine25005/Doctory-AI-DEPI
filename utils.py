@@ -1,6 +1,5 @@
 import streamlit as st
-import requests
-import json
+import google.generativeai as genai
 import joblib
 import numpy as np
 import pandas as pd
@@ -12,7 +11,7 @@ from streamlit_option_menu import option_menu
 
 # --- CONFIGURATION ---
 API_KEY = "AQ.Ab8RN6KiCVSfePNT5miIcH9n1ZZZ7i4kBMLgorOXzBru92_b6Q"
-API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+genai.configure(api_key=API_KEY)
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -34,7 +33,6 @@ def load_css():
 
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-       /* header {visibility: hidden;}*/
         div[data-testid="stSidebarNav"] {display: none;}
         .block-container { padding-top: 2rem !important; }
 
@@ -82,28 +80,24 @@ def load_css():
         div[data-testid="stImage"] { display: flex; justify-content: center; }
         div[data-testid="stImage"] > img { width: 80px !important; }
         
-        /* Chat Message Styling - Bigger Font */
+        /* Chat Message Styling */
         [data-testid="stChatMessage"] {
             font-size: 22px !important; 
         }
 
-        /* Chat Input Box - Bigger Font */
         [data-testid="stChatInput"] textarea {
             font-size: 18px !important;
         }
 
-        /* Make chat message content more readable */
         [data-testid="stChatMessage"] p {
             font-size: 22px !important;
             line-height: 1.6 !important;
         }
 
-        /* User messages */
         [data-testid="stChatMessage"][data-testid*="user"] {
             font-size: 22px !important;
         }
 
-        /* Assistant messages */
         [data-testid="stChatMessage"][data-testid*="assistant"] {
             font-size: 22px !important;
         }
@@ -175,23 +169,13 @@ MODELS = load_all_models()
 def ask_medbot(user_query, system_prompt):
     if not API_KEY: return "⚠️ API Key missing."
     try:
-        payload = {
-            "contents": [{"parts": [{"text": user_query}]}], 
-            "systemInstruction": {"parts": [{"text": system_prompt}]}
-        }
+        # تعريف الموديل مع تحديد شخصية الـ MedBot
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
         
-        # حطينا المفتاح هنا في الـ Headers
-        headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": API_KEY 
-        }
+        # استدعاء الموديل للحصول على الإجابة
+        response = model.generate_content(user_query)
         
-        response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
-        
-        if response.status_code != 200:
-            return f"⚠️ API Error ({response.status_code}): {response.text}"
-            
-        return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return response.text
     except Exception as e: 
         return f"⚠️ Code Error: {str(e)}"
 
