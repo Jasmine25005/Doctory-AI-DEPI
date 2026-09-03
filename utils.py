@@ -178,7 +178,9 @@ def ask_medbot(user_query, system_prompt):
         "google/gemma-2-9b-it:free",                   # Google Gemma
         "meta-llama/llama-3.3-70b-instruct:free",     # Meta Llama 3.3
         "qwen/qwen-2.5-72b-instruct:free",           # Qwen 2.5
-        "deepseek/deepseek-r1:free"                   # DeepSeek R1
+        "deepseek/deepseek-r1:free",                # DeepSeek R1
+        "minimax/minimax-m2.7:free",
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
     ]
     
     url = "https://openrouter.ai/api/v1/chat/completions"
