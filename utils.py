@@ -9,9 +9,8 @@ import io
 import os
 from streamlit_option_menu import option_menu
 
-#  CONFIGURATION
+# --- CONFIGURATION (OPENROUTER & DEEPSEEK) ---
 OPENROUTER_API_KEY = "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"
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -19,7 +18,7 @@ Answer questions clearly and empathetically.
 ALWAYS end with a disclaimer that you are an AI, not a doctor.
 """
 
-#  CSS STYLING
+# --- CSS STYLING ---
 def load_css():
     st.markdown("""
         <style>
@@ -104,7 +103,7 @@ def load_css():
         </style>
     """, unsafe_allow_html=True)
 
-#  NAVIGATION
+# --- NAVIGATION ---
 def render_sidebar(current_page):
     with st.sidebar:
         st.markdown("<h2 style='text-align: center; color: #0277BD;'>Doctory AI</h2>", unsafe_allow_html=True)
@@ -133,7 +132,7 @@ def render_sidebar(current_page):
             if selected == "Diabetes": st.switch_page("pages/4_Diabetes_Risk.py")
             if selected == "Heart Risk": st.switch_page("pages/5_Heart_Disease_Risk.py")
 
-#  MODEL LOADING
+# --- MODEL LOADING ---
 @st.cache_resource
 def load_all_models():
     MODEL_DIR = "models/"
@@ -165,40 +164,43 @@ def load_all_models():
 
 MODELS = load_all_models()
 
-#  HELPERS
+# --- HELPERS (OPENROUTER & DEEPSEEK INTEGRATION) ---
 def ask_medbot(user_query, system_prompt):
-    """استدعاء DeepSeek عبر OpenRouter"""
-    if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == "YOUR_OPENROUTER_API_KEY_HERE": 
-        return "⚠️ Please add your OpenRouter API Key in utils.py"
+    if not OPENROUTER_API_KEY or "sk-or-v1" not in OPENROUTER_API_KEY: 
+        return "
     
-    try:
-        headers = {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://doctory-ai.streamlit.app",  # اختياري
-            "X-Title": "Doctory AI"  # اختياري
-        }
-        
+    free_models = [
+        "deepseek/deepseek-r1:free",                 # DeepSeek R1 الممتاز
+        "deepseek/deepseek-chat:free",               # DeepSeek V3
+        "meta-llama/llama-3.3-70b-instruct:free",    # Meta Llama 3.3
+        "qwen/qwen-2.5-72b-instruct:free"           # Qwen 2.5
+    ]
+    
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    for model in free_models:
         payload = {
-            "model": "deepseek/deepseek-chat",  # ⬅️ DeepSeek موديل قوي ورخيص
+            "model": model,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_query}
             ],
-            "temperature": 0.7,
-            "max_tokens": 1024
+            "temperature": 0.7
         }
         
-        response = requests.post(OPENROUTER_URL, json=payload, headers=headers)
-        
-        if response.status_code == 200:
-            result = response.json()
-            return result['choices'][0]['message']['content']
-        else:
-            return f"⚠️ Error {response.status_code}: {response.text}"
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=15)
+            if response.status_code == 200:
+                result = response.json()
+                return result['choices'][0]['message']['content']
+        except Exception:
+            continue
             
-    except Exception as e: 
-        return f"⚠️ Error: {str(e)}"
+    return "⚠️ Couldn't connect to Openrouter"
 
 def process_image(image_bytes, target_size=(224, 224)):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize(target_size)
@@ -250,7 +252,7 @@ def prepare_heart_features(data):
     cols = ['general_health', 'checkup', 'exercise', 'skin_cancer', 'other_cancer', 'depression', 'diabetes', 'arthritis', 'age_category', 'height', 'weight', 'bmi', 'alcohol_consumption', 'fruit_consumption', 'vegetables_consumption', 'potato_consumption', 'bmi_group', 'sex_Female', 'sex_Male', 'smoking_history_No', 'smoking_history_Yes']
     return scaler.transform(pd.DataFrame([f_dict], columns=cols))
 
-#  MAIN EXECUTION
+# --- MAIN EXECUTION ---
 load_css()
 render_sidebar("Home")
 
