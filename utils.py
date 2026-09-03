@@ -11,8 +11,8 @@ import os
 from streamlit_option_menu import option_menu
 
 # --- CONFIGURATION ---
-API_KEY = "AQ.Ab8RN6K2RTZ1kc8J4r3RcRb5L7BGvkQlsMcn1gyRTipXp2ZC8A"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+API_KEY = "AQ.Ab8RN6KiCVSfePNT5miIcH9n1ZZZ7i4kBMLgorOXzBru92_b6Q"
+API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -175,8 +175,18 @@ MODELS = load_all_models()
 def ask_medbot(user_query, system_prompt):
     if not API_KEY: return "⚠️ API Key missing."
     try:
-        payload = {"contents": [{"parts": [{"text": user_query}]}], "systemInstruction": {"parts": [{"text": system_prompt}]}}
-        response = requests.post(API_URL, headers={"Content-Type": "application/json"}, data=json.dumps(payload))
+        payload = {
+            "contents": [{"parts": [{"text": user_query}]}], 
+            "systemInstruction": {"parts": [{"text": system_prompt}]}
+        }
+        
+        # حطينا المفتاح هنا في الـ Headers
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": API_KEY 
+        }
+        
+        response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
         
         if response.status_code != 200:
             return f"⚠️ API Error ({response.status_code}): {response.text}"
