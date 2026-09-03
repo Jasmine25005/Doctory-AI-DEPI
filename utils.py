@@ -11,7 +11,7 @@ from streamlit_option_menu import option_menu
 
 # CONFIGURATION 
 API_KEY = "AQ.Ab8RN6IltCMoKx4aHSt7zDs-bI9-i9Em9_BHtFGRobd1D5Wy7g"
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={API_KEY}"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
