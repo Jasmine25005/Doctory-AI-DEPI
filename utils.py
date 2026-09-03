@@ -9,9 +9,9 @@ import io
 import os
 from streamlit_option_menu import option_menu
 
-# CONFIGURATION 
-API_KEY = "AQ.Ab8RN6IltCMoKx4aHSt7zDs-bI9-i9Em9_BHtFGRobd1D5Wy7g"
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={API_KEY}"
+#  CONFIGURATION
+OPENROUTER_API_KEY = "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"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -19,7 +19,7 @@ Answer questions clearly and empathetically.
 ALWAYS end with a disclaimer that you are an AI, not a doctor.
 """
 
-# CSS STYLING 
+#  CSS STYLING
 def load_css():
     st.markdown("""
         <style>
@@ -104,7 +104,7 @@ def load_css():
         </style>
     """, unsafe_allow_html=True)
 
-# NAVIGATION 
+#  NAVIGATION
 def render_sidebar(current_page):
     with st.sidebar:
         st.markdown("<h2 style='text-align: center; color: #0277BD;'>Doctory AI</h2>", unsafe_allow_html=True)
@@ -133,7 +133,7 @@ def render_sidebar(current_page):
             if selected == "Diabetes": st.switch_page("pages/4_Diabetes_Risk.py")
             if selected == "Heart Risk": st.switch_page("pages/5_Heart_Disease_Risk.py")
 
-# MODEL LOADING
+#  MODEL LOADING
 @st.cache_resource
 def load_all_models():
     MODEL_DIR = "models/"
@@ -165,35 +165,35 @@ def load_all_models():
 
 MODELS = load_all_models()
 
-# HELPERS
+#  HELPERS
 def ask_medbot(user_query, system_prompt):
-    if not API_KEY: 
-        return "⚠️ API Key missing."
+    """استدعاء DeepSeek عبر OpenRouter"""
+    if not OPENROUTER_API_KEY or OPENROUTER_API_KEY == "YOUR_OPENROUTER_API_KEY_HERE": 
+        return "⚠️ Please add your OpenRouter API Key in utils.py"
     
     try:
-        payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": f"{system_prompt}\n\nUser: {user_query}"}
-                    ]
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.7,
-                "maxOutputTokens": 1024,
-            }
-        }
-        
         headers = {
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://doctory-ai.streamlit.app",  # اختياري
+            "X-Title": "Doctory AI"  # اختياري
         }
         
-        response = requests.post(GEMINI_API_URL, json=payload, headers=headers)
+        payload = {
+            "model": "deepseek/deepseek-chat",  # ⬅️ DeepSeek موديل قوي ورخيص
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_query}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 1024
+        }
+        
+        response = requests.post(OPENROUTER_URL, json=payload, headers=headers)
         
         if response.status_code == 200:
             result = response.json()
-            return result['candidates'][0]['content']['parts'][0]['text']
+            return result['choices'][0]['message']['content']
         else:
             return f"⚠️ Error {response.status_code}: {response.text}"
             
@@ -250,7 +250,7 @@ def prepare_heart_features(data):
     cols = ['general_health', 'checkup', 'exercise', 'skin_cancer', 'other_cancer', 'depression', 'diabetes', 'arthritis', 'age_category', 'height', 'weight', 'bmi', 'alcohol_consumption', 'fruit_consumption', 'vegetables_consumption', 'potato_consumption', 'bmi_group', 'sex_Female', 'sex_Male', 'smoking_history_No', 'smoking_history_Yes']
     return scaler.transform(pd.DataFrame([f_dict], columns=cols))
 
-# MAIN EXECUTION
+#  MAIN EXECUTION
 load_css()
 render_sidebar("Home")
 
