@@ -1,7 +1,6 @@
 streamlit
 streamlit-option-menu
 streamlit-lottie
-google-generativeai
 requests
 joblib
 numpy
@@ -12,5 +11,4 @@ xgboost
 lightgbm
 catboost
 onnxruntime
-google-cloud-aiplatform
 vertexai
