@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 import joblib
 import numpy as np
 import pandas as pd
@@ -9,10 +9,9 @@ import io
 import os
 from streamlit_option_menu import option_menu
 
-# --- CONFIGURATION ---
-API_KEY = "AQ.Ab8RN6KiCVSfePNT5miIcH9n1ZZZ7i4kBMLgorOXzBru92_b6Q"
-genai.configure(api_key=API_KEY, transport="rest")
-genai.configure(api_key=API_KEY)
+# CONFIGURATION 
+API_KEY = "AQ.Ab8RN6IltCMoKx4aHSt7zDs-bI9-i9Em9_BHtFGRobd1D5Wy7g"
+GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -20,7 +19,7 @@ Answer questions clearly and empathetically.
 ALWAYS end with a disclaimer that you are an AI, not a doctor.
 """
 
-# --- CSS STYLING (THE POWERFUL FIX) ---
+# CSS STYLING 
 def load_css():
     st.markdown("""
         <style>
@@ -105,7 +104,7 @@ def load_css():
         </style>
     """, unsafe_allow_html=True)
 
-# --- NAVIGATION ---
+# NAVIGATION 
 def render_sidebar(current_page):
     with st.sidebar:
         st.markdown("<h2 style='text-align: center; color: #0277BD;'>Doctory AI</h2>", unsafe_allow_html=True)
@@ -134,7 +133,7 @@ def render_sidebar(current_page):
             if selected == "Diabetes": st.switch_page("pages/4_Diabetes_Risk.py")
             if selected == "Heart Risk": st.switch_page("pages/5_Heart_Disease_Risk.py")
 
-# --- MODEL LOADING ---
+# MODEL LOADING
 @st.cache_resource
 def load_all_models():
     MODEL_DIR = "models/"
@@ -166,19 +165,40 @@ def load_all_models():
 
 MODELS = load_all_models()
 
-# --- HELPERS ---
+# HELPERS
 def ask_medbot(user_query, system_prompt):
-    if not API_KEY: return "⚠️ API Key missing."
+    if not API_KEY: 
+        return "⚠️ API Key missing."
+    
     try:
-        # تعريف الموديل مع تحديد شخصية الـ MedBot
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": f"{system_prompt}\n\nUser: {user_query}"}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "maxOutputTokens": 1024,
+            }
+        }
         
-        # استدعاء الموديل للحصول على الإجابة
-        response = model.generate_content(user_query)
+        headers = {
+            "Content-Type": "application/json"
+        }
         
-        return response.text
+        response = requests.post(GEMINI_API_URL, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result['candidates'][0]['content']['parts'][0]['text']
+        else:
+            return f"⚠️ Error {response.status_code}: {response.text}"
+            
     except Exception as e: 
-        return f"⚠️ Code Error: {str(e)}"
+        return f"⚠️ Error: {str(e)}"
 
 def process_image(image_bytes, target_size=(224, 224)):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize(target_size)
@@ -230,7 +250,7 @@ def prepare_heart_features(data):
     cols = ['general_health', 'checkup', 'exercise', 'skin_cancer', 'other_cancer', 'depression', 'diabetes', 'arthritis', 'age_category', 'height', 'weight', 'bmi', 'alcohol_consumption', 'fruit_consumption', 'vegetables_consumption', 'potato_consumption', 'bmi_group', 'sex_Female', 'sex_Male', 'smoking_history_No', 'smoking_history_Yes']
     return scaler.transform(pd.DataFrame([f_dict], columns=cols))
 
-# --- MAIN EXECUTION ---
+# MAIN EXECUTION
 load_css()
 render_sidebar("Home")
 
