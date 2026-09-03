@@ -9,8 +9,9 @@ import io
 import os
 from streamlit_option_menu import option_menu
 
-# --- CONFIGURATION (OPENROUTER & DEEPSEEK) ---
+# --- CONFIGURATION (OPENROUTER & GLM-5.2) ---
 OPENROUTER_API_KEY = "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"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MEDICAL_PROMPT = """
 You are MedBot, a professional medical AI assistant. 
@@ -163,53 +164,48 @@ def load_all_models():
     except Exception: return None
 
 MODELS = load_all_models()
-# --- HELPERS (OPENROUTER INTEGRATION WITH AUTO-FALLBACK) ---
+
+# --- HELPERS (GLM-5.2 INTEGRATION) ---
 def ask_medbot(user_query, system_prompt):
+    """استدعاء GLM-5.2 عبر OpenRouter"""
     if not OPENROUTER_API_KEY or "sk-or-v1" not in OPENROUTER_API_KEY: 
-        return "⚠️ Please provide a valid OpenRouter API Key starting with sk-or-v1"
+        return "⚠️ Please add your OpenRouter API Key in utils.py"
     
-    # قائمة أفضل الموديلات المجانية على OpenRouter مرتبة بالأسرع والأكثر استقراراً
-    free_models = [
-        "google/gemini-2.0-flash-exp:free",           # سريع جداً ومجاني على OpenRouter
-        "meta-llama/llama-3.3-70b-instruct:free",    # موديل ميتا الممتاز
-        "qwen/qwen-2.5-72b-instruct:free",          # موديل كوين القوي
-        "deepseek/deepseek-r1:free",                 # ديب سيك R1
-        "deepseek/deepseek-chat:free"                # ديب سيك V3
-    ]
-    
-    url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:8501", 
+        "HTTP-Referer": "https://doctory-ai.streamlit.app",
         "X-Title": "Doctory AI"
     }
     
-    last_error = ""
-
-    for model in free_models:
-        payload = {
-            "model": model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_query}
-            ],
-            "temperature": 0.7
-        }
-        
-        try:
-            response = requests.post(url, json=payload, headers=headers, timeout=20)
-            if response.status_code == 200:
-                result = response.json()
-                return result['choices'][0]['message']['content']
-            else:
-                last_error = f"[{model}] Status {response.status_code}: {response.text}"
-        except Exception as e:
-            last_error = str(e)
-            continue
-            
-    return f"⚠️ Connection Error. Details: {last_error}"
+    payload = {
+        "model": "zhipu-ai/glm-5.2:free",  # ⬅️ GLM-5.2 Free Model
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_query}
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1024
+    }
     
+    try:
+        response = requests.post(OPENROUTER_URL, json=payload, headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result['choices'][0]['message']['content']
+        elif response.status_code == 402:
+            return "⚠️ Model requires payment or credits. Try adding credits to OpenRouter."
+        elif response.status_code == 429:
+            return "⚠️ Rate limit exceeded. Please wait a moment and try again."
+        else:
+            return f"⚠️ Error {response.status_code}: {response.text}"
+            
+    except requests.exceptions.Timeout:
+        return "⚠️ Request timed out. The model might be busy, please try again."
+    except Exception as e: 
+        return f"⚠️ Error: {str(e)}"
+
 def process_image(image_bytes, target_size=(224, 224)):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize(target_size)
     img_np = np.array(img).astype(np.float32) / 255.0
