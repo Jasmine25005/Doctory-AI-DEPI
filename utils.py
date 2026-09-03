@@ -12,7 +12,7 @@ from streamlit_option_menu import option_menu
 
 
 # --- CONFIGURATION (OPENROUTER & GLM-5.2) ---
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MEDICAL_PROMPT = """
