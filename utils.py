@@ -8,8 +8,7 @@ import onnxruntime as ort
 from PIL import Image
 import io
 import os
-from streamlit_option_menu import option_menu 
-
+from streamlit_option_menu import option_menu
 
 # --- CONFIGURATION ---
 API_KEY = "AQ.Ab8RN6K2RTZ1kc8J4r3RcRb5L7BGvkQlsMcn1gyRTipXp2ZC8A"
@@ -42,25 +41,23 @@ def load_css():
         .block-container { padding-top: 2rem !important; }
 
         /* --- 3. تصميم الكارت (الجزء المهم) --- */
-        /* نستهدف أي حاوية (Container) لها إطار */
-        /* --- 3. تصميم الكارت (الجزء المهم) --- */
        [data-testid="stVerticalBlockBorderWrapper"],
        [data-testid="stVerticalBlock"] > div[style*="border"],
        div[class*="stContainer"] {
-            background-color: #FFFFFF !important; /* يجبر الخلفية تكون بيضاء */
-            border: 1px solid #CCCCCC !important; /* حدود رمادية */
-            border-left: 8px solid #0277BD !important; /* الخط الأزرق السميك */
+            background-color: #FFFFFF !important; 
+            border: 1px solid #CCCCCC !important; 
+            border-left: 8px solid #0277BD !important; 
             border-radius: 15px !important;
             padding: 20px !important;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-            transition: all 0.3s ease-in-out !important; /* نعومة الحركة */
+            transition: all 0.3s ease-in-out !important; 
         }
 
         /* عند مرور الماوس (Hover) */
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            transform: translateY(-10px) !important; /* يرفع الكارت لأعلى */
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; /* ظل كبير */
-            border-color: #0277BD !important; /* يجعل الحدود زرقاء */
+            transform: translateY(-10px) !important; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; 
+            border-color: #0277BD !important; 
         }
 
         /* 4. إجبار النصوص داخل الكارت أن تكون ملونة */
@@ -91,31 +88,32 @@ def load_css():
         /* 6. توسيط الصور */
         div[data-testid="stImage"] { display: flex; justify-content: center; }
         div[data-testid="stImage"] > img { width: 80px !important; }
+        
         /* Chat Message Styling - Bigger Font */
-[data-testid="stChatMessage"] {
-    font-size: 22px !important; /* Increase from default ~14px */
-}
+        [data-testid="stChatMessage"] {
+            font-size: 22px !important; 
+        }
 
-/* Chat Input Box - Bigger Font */
-[data-testid="stChatInput"] textarea {
-    font-size: 18px !important;
-}
+        /* Chat Input Box - Bigger Font */
+        [data-testid="stChatInput"] textarea {
+            font-size: 18px !important;
+        }
 
-/* Make chat message content more readable */
-[data-testid="stChatMessage"] p {
-    font-size: 22px !important;
-    line-height: 1.6 !important;
-}
+        /* Make chat message content more readable */
+        [data-testid="stChatMessage"] p {
+            font-size: 22px !important;
+            line-height: 1.6 !important;
+        }
 
-/* User messages */
-[data-testid="stChatMessage"][data-testid*="user"] {
-    font-size: 22px !important;
-}
+        /* User messages */
+        [data-testid="stChatMessage"][data-testid*="user"] {
+            font-size: 22px !important;
+        }
 
-/* Assistant messages */
-[data-testid="stChatMessage"][data-testid*="assistant"] {
-    font-size: 22px !important;
-}
+        /* Assistant messages */
+        [data-testid="stChatMessage"][data-testid*="assistant"] {
+            font-size: 22px !important;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -239,4 +237,9 @@ def prepare_heart_features(data):
     cols = ['general_health', 'checkup', 'exercise', 'skin_cancer', 'other_cancer', 'depression', 'diabetes', 'arthritis', 'age_category', 'height', 'weight', 'bmi', 'alcohol_consumption', 'fruit_consumption', 'vegetables_consumption', 'potato_consumption', 'bmi_group', 'sex_Female', 'sex_Male', 'smoking_history_No', 'smoking_history_Yes']
     return scaler.transform(pd.DataFrame([f_dict], columns=cols))
 
+# --- MAIN EXECUTION ---
+load_css()
+render_sidebar("Home")
 
+st.title("Welcome to Doctory AI 🩺")
+st.write("Please select a diagnostic tool from the sidebar.")
