@@ -163,30 +163,30 @@ def load_all_models():
     except Exception: return None
 
 MODELS = load_all_models()
-
-# --- HELPERS (OPENROUTER & DEEPSEEK INTEGRATION) ---
+# --- HELPERS (OPENROUTER INTEGRATION WITH AUTO-FALLBACK) ---
 def ask_medbot(user_query, system_prompt):
-    """استدعاء OpenRouter مع DeepSeek ونماذج مجانية أخرى"""
     if not OPENROUTER_API_KEY or "sk-or-v1" not in OPENROUTER_API_KEY: 
-        return "⚠️ Please add your OpenRouter API Key in utils.py"
+        return "⚠️ Please provide a valid OpenRouter API Key starting with sk-or-v1"
     
-    # نماذج مجانية مرتبة حسب الجودة
+    # قائمة أفضل الموديلات المجانية على OpenRouter مرتبة بالأسرع والأكثر استقراراً
     free_models = [
-        "deepseek/deepseek-r1:free",                 # DeepSeek R1 الأقوى
-        "deepseek/deepseek-chat:free",               # DeepSeek V3
-        "meta-llama/llama-3.3-70b-instruct:free",    # Meta Llama 3.3
-        "qwen/qwen-2.5-72b-instruct:free"            # Qwen 2.5
+        "google/gemini-2.0-flash-exp:free",           # سريع جداً ومجاني على OpenRouter
+        "meta-llama/llama-3.3-70b-instruct:free",    # موديل ميتا الممتاز
+        "qwen/qwen-2.5-72b-instruct:free",          # موديل كوين القوي
+        "deepseek/deepseek-r1:free",                 # ديب سيك R1
+        "deepseek/deepseek-chat:free"                # ديب سيك V3
     ]
     
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://doctory-ai.streamlit.app",
+        "HTTP-Referer": "http://localhost:8501", 
         "X-Title": "Doctory AI"
     }
     
-    # جرب كل موديل لحد ما واحد يشتغل
+    last_error = ""
+
     for model in free_models:
         payload = {
             "model": model,
@@ -194,20 +194,22 @@ def ask_medbot(user_query, system_prompt):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_query}
             ],
-            "temperature": 0.7,
-            "max_tokens": 1024
+            "temperature": 0.7
         }
         
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=15)
+            response = requests.post(url, json=payload, headers=headers, timeout=20)
             if response.status_code == 200:
                 result = response.json()
                 return result['choices'][0]['message']['content']
-        except Exception:
-            continue  # جرب الموديل التالي
+            else:
+                last_error = f"[{model}] Status {response.status_code}: {response.text}"
+        except Exception as e:
+            last_error = str(e)
+            continue
             
-    return "⚠️ All AI models are currently unavailable. Please try again later."
-
+    return f"⚠️ Connection Error. Details: {last_error}"
+    
 def process_image(image_bytes, target_size=(224, 224)):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize(target_size)
     img_np = np.array(img).astype(np.float32) / 255.0
