@@ -29,13 +29,16 @@ with col_up:
     st.markdown('</div>', unsafe_allow_html=True)
 with col_info:
     st.info("💡 **Tip:** Ensure the image is a clear, single-cell crop from a blood smear slide.")
-
 # --- Analysis ---
 if uploaded_file:
+    # 1. نقرأ الصورة كـ Bytes مرة واحدة بس هنا
+    image_bytes = uploaded_file.getvalue()
+    
     col_img, col_res = st.columns([1, 2])
     
     with col_img:
-        st.image(uploaded_file, caption="Microscopic View", use_column_width=True)
+        # 2. نمرر الـ image_bytes بدل uploaded_file
+        st.image(image_bytes, caption="Microscopic View", use_container_width=True)
         run_btn = st.button("🔬 Analyze Sample", use_container_width=True, type="primary")
 
     with col_res:
@@ -43,8 +46,8 @@ if uploaded_file:
             if MODELS and MODELS.get('malaria_sess'):
                 try:
                     with st.spinner("Analyzing cellular structure..."):
-                        # Inference
-                        img_input = process_malaria_image(uploaded_file.read())
+                        # 3. نمرر نفس الـ image_bytes للموديل بدل uploaded_file.read()
+                        img_input = process_malaria_image(image_bytes)
                         session = MODELS['malaria_sess']
                         result = session.run([MODELS['mal_out']], {MODELS['mal_in']: img_input})
                         
