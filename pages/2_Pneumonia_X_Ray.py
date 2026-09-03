@@ -20,51 +20,59 @@ st.info("Upload a standard Chest X-Ray (JPEG/PNG) to detect signs of Pneumonia."
 st.markdown('<div class="css-card">', unsafe_allow_html=True)
 uploaded_file = st.file_uploader("📂 Upload X-Ray Image", type=["jpg", "png", "jpeg"])
 st.markdown('</div>', unsafe_allow_html=True)
-
-# --- Analysis Logic ---
+# --- Analysis ---
 if uploaded_file:
-    # Layout: Image on Left, Results on Right
-    col1, col2 = st.columns([1, 1.5])
+    # 1. نقرأ الصورة كـ Bytes مرة واحدة بس هنا عشان الـ Buffer ميفضاش
+    image_bytes = uploaded_file.getvalue()
     
-    with col1:
-        st.image(uploaded_file, caption="Uploaded X-Ray", use_column_width=True)
-        analyze_btn = st.button("🔍 Analyze Image", use_container_width=True, type="primary")
+    col_img, col_res = st.columns([1, 2])
+    
+    with col_img:
+        # 2. نمرر الـ image_bytes بدل uploaded_file ونستخدم use_container_width
+        st.image(image_bytes, caption="Uploaded X-Ray", use_container_width=True)
+        run_btn = st.button("🫁 Analyze X-Ray", use_container_width=True, type="primary")
 
-    with col2:
-        if analyze_btn:
+    with col_res:
+        if run_btn:
             if MODELS and MODELS.get('pneumonia_sess'):
                 try:
-                    with st.spinner("Scanning lung opacities..."):
-                        # 1. Preprocess
-                        image_bytes = uploaded_file.read()
+                    with st.spinner("Analyzing lung scans..."):
+                        # 3. نمرر نفس الـ image_bytes للموديل بدل uploaded_file.read()
                         img_input = process_image(image_bytes)
-                        
-                        # 2. Inference
                         session = MODELS['pneumonia_sess']
                         result = session.run([MODELS['pneu_out']], {MODELS['pneu_in']: img_input})
                         
-                        # 3. Process Result
-                        probs = result[0][0]
-                        idx = np.argmax(probs)
-                        classes = ["Normal", "Pneumonia (Bacterial)", "Pneumonia (Viral)"]
+                        prediction = result[0][0][0]
                         
-                        final_result = classes[idx] if idx < len(classes) else "Unknown"
-                        
-                        # 4. Display Logic
-                        if "Normal" in final_result:
-                            st.success(f"### ✅ Result: {final_result}")
-                            st.balloons()
+                        # Threshold Logic (افترضي إن 0.5 هو الحد الفاصل)
+                        if prediction > 0.5:
+                            label = "Pneumonia"
+                            confidence = prediction
+                            is_healthy = False
                         else:
-                            st.error(f"### ⚠️ Result: {final_result}")
+                            label = "Normal"
+                            confidence = 1 - prediction
+                            is_healthy = True
+
+                        # Display Result
+                        st.subheader("Analysis Results")
                         
-                        # 5. AI Explanation
-                        st.markdown("---")
-                        st.subheader("🤖 Dr. AI Insights")
-                        ai_prompt = f"Chest X-Ray analysis result: {final_result}. Explain this medical condition briefly to a patient."
+                        if is_healthy:
+                            st.success(f"## ✅ {label}")
+                            st.progress(float(confidence), text=f"Confidence: {confidence:.2%}")
+                        else:
+                            st.error(f"## 🫁 {label}")
+                            st.progress(float(confidence), text=f"Confidence: {confidence:.2%}")
+                            st.warning("⚠️ High Risk: Signs of lung infection detected.")
+
+                        # AI Explanation
+                        st.divider()
+                        ai_prompt = f"Chest X-Ray analysis result: {label}. Explain this result briefly."
                         explanation = ask_medbot(ai_prompt, MEDICAL_PROMPT)
+                        st.caption("Dr. AI Analysis:")
                         st.write(explanation)
 
                 except Exception as e:
-                    st.error(f"Analysis Error: {e}")
+                    st.error(f"Error: {e}")
             else:
-                st.warning("⚠️ Model not loaded. Please check system configuration.")
+                st.error("Model not loaded.")
