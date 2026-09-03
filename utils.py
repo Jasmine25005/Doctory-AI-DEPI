@@ -27,20 +27,17 @@ def load_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
         
-        /* 1. خلفية زرقاء فاتحة لكامل التطبيق */
         .stApp {
             background: linear-gradient(135deg, #0277BD 5%, #BBDEFB 100%) !important;
             background-attachment: fixed;
         }
 
-        /* 2. إخفاء القوائم الافتراضية */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
        /* header {visibility: hidden;}*/
         div[data-testid="stSidebarNav"] {display: none;}
         .block-container { padding-top: 2rem !important; }
 
-        /* --- 3. تصميم الكارت (الجزء المهم) --- */
        [data-testid="stVerticalBlockBorderWrapper"],
        [data-testid="stVerticalBlock"] > div[style*="border"],
        div[class*="stContainer"] {
@@ -53,14 +50,12 @@ def load_css():
             transition: all 0.3s ease-in-out !important; 
         }
 
-        /* عند مرور الماوس (Hover) */
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
             transform: translateY(-10px) !important; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; 
             border-color: #0277BD !important; 
         }
 
-        /* 4. إجبار النصوص داخل الكارت أن تكون ملونة */
         [data-testid="stVerticalBlockBorderWrapper"] h1, 
         [data-testid="stVerticalBlockBorderWrapper"] h2, 
         [data-testid="stVerticalBlockBorderWrapper"] h3 {
@@ -70,7 +65,6 @@ def load_css():
             color: #424242 !important;
         }
 
-        /* 5. تصميم الأزرار */
         div.stButton > button {
             background: linear-gradient(135deg, #0277BD 0%, #01579B 100%) !important;
             color: white !important;
@@ -85,7 +79,6 @@ def load_css():
             box-shadow: 0 5px 15px rgba(2, 119, 189, 0.4) !important;
         }
         
-        /* 6. توسيط الصور */
         div[data-testid="stImage"] { display: flex; justify-content: center; }
         div[data-testid="stImage"] > img { width: 80px !important; }
         
@@ -184,8 +177,13 @@ def ask_medbot(user_query, system_prompt):
     try:
         payload = {"contents": [{"parts": [{"text": user_query}]}], "systemInstruction": {"parts": [{"text": system_prompt}]}}
         response = requests.post(API_URL, headers={"Content-Type": "application/json"}, data=json.dumps(payload))
+        
+        if response.status_code != 200:
+            return f"⚠️ API Error ({response.status_code}): {response.text}"
+            
         return response.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except: return "Connection Error"
+    except Exception as e: 
+        return f"⚠️ Code Error: {str(e)}"
 
 def process_image(image_bytes, target_size=(224, 224)):
     img = Image.open(io.BytesIO(image_bytes)).convert('RGB').resize(target_size)
