@@ -11,6 +11,7 @@ from streamlit_option_menu import option_menu
 
 # --- CONFIGURATION ---
 API_KEY = "AQ.Ab8RN6KiCVSfePNT5miIcH9n1ZZZ7i4kBMLgorOXzBru92_b6Q"
+genai.configure(api_key=API_KEY, transport="rest")
 genai.configure(api_key=API_KEY)
 
 MEDICAL_PROMPT = """
